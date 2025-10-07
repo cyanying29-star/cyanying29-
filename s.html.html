@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>運動商品購物網 — 電子商務 + 進銷存</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#94a3b8;--accent:#06b6d4;--glass:rgba(255,255,255,0.04)}
+    *{box-sizing:border-box;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial}
+    body{margin:0;background:linear-gradient(180deg,#071023 0%,#071b2b 60%);color:#e6eef6;min-height:100vh}
+    .container{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between}
+    h1{font-size:20px;margin:0}
+    .controls{display:flex;gap:10px;align-items:center}
+    button, .btn{background:var(--accent);border:none;color:#052025;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+    .layout{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    .product-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+    .product{background:var(--glass);padding:10px;border-radius:8px}
+    .product img{width:100%;height:120px;object-fit:cover;border-radius:6px}
+    .product h3{font-size:14px;margin:8px 0 4px}
+    .muted{color:var(--muted);font-size:13px}
+    .inventory{display:flex;flex-direction:column;gap:10px}
+    .form-row{display:flex;gap:8px}
+    input,select,textarea{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px;border-radius:8px;color:inherit;width:100%}
+    .cart-list{display:flex;flex-direction:column;gap:10px}
+    .cart-item{display:flex;gap:10px;align-items:center}
+    .small{font-size:13px}
+    .badge{background:rgba(6,182,212,0.12);padding:6px 8px;border-radius:999px;color:var(--accent);font-weight:700}
+    footer{margin-top:20px;text-align:center;color:var(--muted);font-size:13px}
+    .search{display:flex;gap:8px;align-items:center}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{padding:8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
+    .flex{display:flex;gap:8px;align-items:center}
+    @media (max-width:900px){.layout{grid-template-columns:1fr}.product img{height:100px}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>運動商品購物網 — 電子商務與進銷存系統</h1>
+        <div class="muted">前端單檔示範（localStorage 儲存） — 支援商品管理、庫存、購物車、下單與訂單管理</div>
+      </div>
+      <div class="controls">
+        <div class="search">
+          <input id="search" placeholder="搜尋商品或分類" />
+        </div>
+        <div class="actions">
+          <button id="open-add-product">新增商品</button>
+          <button id="clear-data" class="btn secondary">重置資料</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="layout">
+      <main>
+        <section class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>商品列表</strong>
+            <div class="muted small">點選加入購物車以建立訂單</div>
+          </div>
+          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:10px 0">
+
+          <div class="product-list" id="product-list"></div>
+        </section>
+
+        <section class="card" style="margin-top:12px">
+          <strong>銷售紀錄（訂單）</strong>
+          <div style="margin-top:8px" id="orders-section"></div>
+        </section>
+      </main>
+
+      <aside>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>購物車</strong>
+            <span id="cart-count" class="badge">0</span>
+          </div>
+
+          <div style="margin-top:10px" id="cart"></div>
+          <div style="margin-top:10px;display:flex;justify-content:space-between;gap:8px">
+            <button id="checkout" class="btn">結帳</button>
+            <button id="empty-cart" class="btn secondary">清空購物車</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px">
+          <strong>進銷存管理</strong>
+          <div class="inventory" style="margin-top:8px" id="inventory-manager"></div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>範例系統 — 以 localStorage 儲存資料。可用作原型或教學示範。</footer>
+  </div>
+
+  <!-- Modals / hidden forms -->
+  <div id="modal-root"></div>
+
+  <script>
+    /* ---------- Storage helpers ---------- */
+    const STORAGE_KEYS = {PRODUCTS:'se_products_v1', ORDERS:'se_orders_v1', CART:'se_cart_v1'}
+
+    function load(key, fallback){
+      try{const v = localStorage.getItem(key); return v? JSON.parse(v): fallback}
+      catch(e){console.error(e); return fallback}
+    }
+    function save(key, val){localStorage.setItem(key,JSON.stringify(val))}
+
+    /* ---------- Seed data ---------- */
+    let products = load(STORAGE_KEYS.PRODUCTS, null);
+    if(!products){
+      products = [
+        {id:uid(),title:'跑步鞋 — 極輕量',category:'鞋類',price:3200,stock:12,desc:'專業跑步緩震，適合長跑',img:'https://images.unsplash.com/photo-1526403224743-8a6f8c9211a5?auto=format&fit=crop&w=800&q=60'},
+        {id:uid(),title:'籃球',category:'球類',price:780,stock:30,desc:'標準尺寸，耐磨',img:'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=800&q=60'},
+        {id:uid(),title:'彈力繩訓練組',category:'配件',price:450,stock:20,desc:'多段阻力，家用訓練',img:'https://images.unsplash.com/photo-1599058917210-9c8ab4ac7f11?auto=format&fit=crop&w=800&q=60'},
+      ];
+      save(STORAGE_KEYS.PRODUCTS, products);
+    }
+
+    let orders = load(STORAGE_KEYS.ORDERS, []);
+    let cart = load(STORAGE_KEYS.CART, {});
+
+    /* ---------- Utilities ---------- */
+    function uid(prefix='p'){return prefix+Math.random().toString(36).slice(2,9)}
+    function $(sel, root=document){return root.querySelector(sel)}
+    function $all(sel, root=document){return Array.from(root.querySelectorAll(sel))}
+
+    /* ---------- Rendering ---------- */
+    function renderProducts(filter=''){
+      const container = $('#product-list'); container.innerHTML='';
+      const q = filter.trim().toLowerCase();
+      const filtered = products.filter(p=>{
+        if(!q) return true;
+        return (p.title+p.category+p.desc).toLowerCase().includes(q);
+      });
+      if(filtered.length===0){container.innerHTML='<div class="muted">找不到商品，請新增或重設資料</div>';return}
+
+      filtered.forEach(p=>{
+        const el = document.createElement('div'); el.className='product';
+        el.innerHTML = `
+          <img src="${p.img||''}" alt="${escapeHtml(p.title)}" onerror="this.style.objectFit='contain'" />
+          <h3>${escapeHtml(p.title)}</h3>
+          <div class="muted small">${escapeHtml(p.category)} • NT$${numberWithCommas(p.price)}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <div class="small muted">庫存: ${p.stock}</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn" data-action="add-to-cart" data-id="${p.id}">加入購物車</button>
+              <button class="btn secondary" data-action="edit" data-id="${p.id}">編輯</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function renderCart(){
+      const root = $('#cart'); root.innerHTML='';
+      const keys = Object.keys(cart);
+      $('#cart-count').textContent = keys.reduce((s,k)=>s+cart[k].qty,0);
+      if(keys.length===0){root.innerHTML='<div class="muted">購物車是空的</div>';return}
+      const wrap = document.createElement('div'); wrap.className='cart-list';
+      keys.forEach(id=>{
+        const it = cart[id];
+        const p = products.find(x=>x.id===id);
+        if(!p) return;
+        const row = document.createElement('div'); row.className='cart-item';
+        row.innerHTML = `
+          <div style="flex:1">
+            <div style="font-weight:700">${escapeHtml(p.title)}</div>
+            <div class="muted small">${escapeHtml(p.category)} • NT$${numberWithCommas(p.price)}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="number" min="1" max="${Math.max(1,p.stock)}" value="${it.qty}" data-action="qty" data-id="${id}" style="width:68px" />
+            <div style="min-width:80px;text-align:right">小計<br/><strong>NT$${numberWithCommas(p.price*it.qty)}</strong></div>
+            <button class="btn secondary" data-action="remove" data-id="${id}">移除</button>
+          </div>
+        `;
+        wrap.appendChild(row);
+      });
+      root.appendChild(wrap);
+    }
+
+    function renderInventoryManager(){
+      const root = $('#inventory-manager'); root.innerHTML='';
+      products.forEach(p=>{
+        const row = document.createElement('div'); row.className='flex';
+        row.innerHTML = `
+          <div style="flex:1">
+            <div class="small">${escapeHtml(p.title)} <span class="muted">(${escapeHtml(p.category)})</span></div>
+            <div class="muted small">價格: NT$${numberWithCommas(p.price)}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="number" value="${p.stock}" min="0" data-action="stock" data-id="${p.id}" style="width:84px" />
+            <button class="btn secondary" data-action="delete" data-id="${p.id}">刪除</button>
+          </div>
+        `;
+        root.appendChild(row);
+      });
+    }
+
+    function renderOrders(){
+      const section = $('#orders-section'); section.innerHTML='';
+      if(orders.length===0){section.innerHTML='<div class="muted">尚未有訂單</div>';return}
+      const table = document.createElement('table'); table.className='table';
+      table.innerHTML = `<thead><tr><th>訂單編號</th><th>日期</th><th>項目</th><th>總額</th><th>動作</th></tr></thead>`;
+      const tbody = document.createElement('tbody');
+      orders.slice().reverse().forEach(o=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${o.id}</td>
+          <td>${new Date(o.date).toLocaleString()}</td>
+          <td>${o.items.map(i=>escapeHtml(i.title)+' x'+i.qty).join('<br/>')}</td>
+          <td>NT$${numberWithCommas(o.total)}</td>
+          <td><button class="btn" data-action="export-order" data-id="${o.id}">匯出CSV</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody); section.appendChild(table);
+    }
+
+    /* ---------- Helpers ---------- */
+    function numberWithCommas(x){return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")}
+    function escapeHtml(s){return (s||'').toString().replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[c])}
+
+    /* ---------- Actions ---------- */
+    function openAddProduct(){
+      openModal('新增商品', productFormTemplate(), ({form})=>{
+        const data = readForm(form);
+        if(!data.title||!data.price){alert('請輸入商品名稱與價格');return false}
+        const p = {id:uid('p'), title:data.title, category:data.category||'未分類', price:parseInt(data.price,10)||0, stock:parseInt(data.stock,10)||0, desc:data.desc||'', img:data.img||''};
+        products.push(p); save(STORAGE_KEYS.PRODUCTS, products); renderAll(); return true;
+      })
+    }
+
+    function openEditProduct(id){
+      const p = products.find(x=>x.id===id); if(!p) return; 
+      openModal('編輯商品', productFormTemplate(p), ({form})=>{
+        const data = readForm(form);
+        p.title=data.title; p.category=data.category; p.price=parseInt(data.price,10)||0; p.stock=parseInt(data.stock,10)||0; p.desc=data.desc; p.img=data.img;
+        save(STORAGE_KEYS.PRODUCTS, products); renderAll(); return true;
+      })
+    }
+
+    function addToCart(id){
+      const p = products.find(x=>x.id===id); if(!p) return;
+      if(p.stock<=0){alert('庫存不足');return}
+      if(!cart[id]) cart[id]={qty:0};
+      if(cart[id].qty+1>p.stock){alert('數量超過庫存');return}
+      cart[id].qty += 1; save(STORAGE_KEYS.CART, cart); renderCart();
+    }
+
+    function updateQty(id, qty){
+      const p = products.find(x=>x.id===id); if(!p) return;
+      qty = Math.max(1, Math.min(p.stock, qty||1));
+      cart[id].qty = qty; save(STORAGE_KEYS.CART, cart); renderCart();
+    }
+
+    function removeFromCart(id){ delete cart[id]; save(STORAGE_KEYS.CART, cart); renderCart(); }
+    function emptyCart(){ cart={}; save(STORAGE_KEYS.CART, cart); renderCart(); }
+
+    function checkout(){
+      const keys = Object.keys(cart); if(keys.length===0){alert('購物車為空');return}
+      // Build order preview
+      const items = keys.map(id=>{
+        const p = products.find(x=>x.id===id);
+        return {id, title:p.title, price:p.price, qty:cart[id].qty}
+      });
+      const total = items.reduce((s,i)=>s+i.price*i.qty,0);
+
+      openModal('結帳確認', `\n<p class=\"muted\">請確認購買項目</p>\n<table style=\"width:100%\">${items.map(i=>`<tr><td>${escapeHtml(i.title)} x${i.qty}</td><td style=\"text-align:right\">NT$${numberWithCommas(i.price*i.qty)}</td></tr>`).join('')}<tr><td><strong>總計</strong></td><td style=\"text-align:right\"><strong>NT$${numberWithCommas(total)}</strong></td></tr></table>`, ({})=>{
+        // commit order: reduce stock, create order record
+        items.forEach(i=>{const p=products.find(x=>x.id===i.id); if(p){p.stock -= i.qty; if(p.stock<0) p.stock=0}});
+        const order = {id: 'ORD'+Date.now().toString().slice(-6), date:new Date().toISOString(), items, total};
+        orders.push(order); save(STORAGE_KEYS.ORDERS, orders); save(STORAGE_KEYS.PRODUCTS, products); emptyCart(); renderAll(); return true;
+      })
+    }
+
+    function exportOrderCsv(orderId){
+      const o = orders.find(x=>x.id===orderId); if(!o) return; 
+      const lines = ['訂單編號,日期,商品,數量,單價,小計'];
+      o.items.forEach(i=>{lines.push([o.id,new Date(o.date).toLocaleString(),i.title,i.qty,i.price,i.qty*i.price].map(v=>`"${v}"`).join(','))});
+      lines.push(["總計","", "", "", "", o.total].map(v=>`"${v}"`).join(','));
+      downloadCsv(lines.join('\n'), `${o.id}.csv`);
+    }
+
+    function downloadCsv(text, filename){
+      const blob = new Blob([text], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    /* ---------- Small UI: modal & forms ---------- */
+    function openModal(title, innerHtml, onConfirm){
+      const root = document.getElementById('modal-root'); root.innerHTML='';
+      const modal = document.createElement('div'); modal.style.position='fixed'; modal.style.inset='0'; modal.style.display='flex'; modal.style.alignItems='center'; modal.style.justifyContent='center';
+      modal.style.zIndex=9999; modal.innerHTML = `
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5)" onclick="document.getElementById('modal-root').innerHTML=''" ></div>
+        <div style="width:680px;max-width:94%;background:var(--card);padding:18px;border-radius:12px;position:relative">
+          <div style="display:flex;justify-content:space-between;align-items:center"><strong>${title}</strong><button id="modal-close" class="btn secondary">關閉</button></div>
+          <div style="margin-top:10px">${innerHtml}</div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+            <button id="modal-ok" class="btn">確認</button>
+            <button id="modal-cancel" class="btn secondary">取消</button>
+          </div>
+        </div>
+      `;
+      root.appendChild(modal);
+      $('#modal-close', modal).onclick = ()=>root.innerHTML='';
+      $('#modal-cancel', modal).onclick = ()=>root.innerHTML='';
+      $('#modal-ok', modal).onclick = ()=>{
+        const form = modal.querySelector('form') || modal.querySelector('div');
+        let ok = true; try{ok = onConfirm({form})}catch(e){console.error(e);ok=false}
+        if(ok) root.innerHTML='';
+      }
+    }
+
+    function productFormTemplate(p={}){
+      return `
+        <form>
+          <div class="form-row"><input name="title" placeholder="商品名稱" value="${escapeHtml(p.title||'')}" /></div>
+          <div class="form-row" style="margin-top:8px"><input name="category" placeholder="分類" value="${escapeHtml(p.category||'')}" /><input name="price" placeholder="價格" value="${p.price||''}" /></div>
+          <div class="form-row" style="margin-top:8px"><input name="stock" placeholder="庫存數量" value="${p.stock||0}" type="number" /></div>
+          <div style="margin-top:8px"><input name="img" placeholder="圖片 URL（可選）" value="${escapeHtml(p.img||'')}" /></div>
+          <div style="margin-top:8px"><textarea name="desc" placeholder="描述" rows="3">${escapeHtml(p.desc||'')}</textarea></div>
+        </form>
+      `;
+    }
+    function readForm(container){
+      const out = {}; const inputs = container.querySelectorAll('input,textarea,select');
+      inputs.forEach(i=>{out[i.name||i.getAttribute('name')||i.dataset.name||i.id]=i.value}); return out;
+    }
+
+    /* ---------- Events ---------- */
+    document.getElementById('open-add-product').addEventListener('click', openAddProduct);
+    document.getElementById('clear-data').addEventListener('click', ()=>{
+      if(confirm('確定要重置為初始範例資料？此動作會清除所有本地資料。')){ localStorage.removeItem(STORAGE_KEYS.PRODUCTS); localStorage.removeItem(STORAGE_KEYS.ORDERS); localStorage.removeItem(STORAGE_KEYS.CART); location.reload(); }
+    });
+
+    document.getElementById('search').addEventListener('input', e=>renderProducts(e.target.value));
+    document.getElementById('empty-cart').addEventListener('click', ()=>{ if(confirm('清空購物車？')) emptyCart(); });
+    document.getElementById('checkout').addEventListener('click', checkout);
+
+    // delegate clicks
+    document.body.addEventListener('click', (e)=>{
+      const btn = e.target.closest('[data-action]'); if(!btn) return;
+      const act = btn.dataset.action; const id = btn.dataset.id;
+      if(act==='add-to-cart') addToCart(id);
+      if(act==='edit') openEditProduct(id);
+      if(act==='delete'){
+        if(confirm('確定刪除此商品？')){ products = products.filter(x=>x.id!==id); save(STORAGE_KEYS.PRODUCTS, products); renderAll(); }
+      }
+      if(act==='remove') removeFromCart(id);
+      if(act==='export-order') exportOrderCsv(id);
+    });
+
+    // delegate input changes
+    document.body.addEventListener('change', (e)=>{
+      const el = e.target; if(el.dataset.action==='qty') updateQty(el.dataset.id, parseInt(el.value,10)||1);
+      if(el.dataset.action==='stock'){
+        const p = products.find(x=>x.id===el.dataset.id); if(!p) return; p.stock = parseInt(el.value,10)||0; save(STORAGE_KEYS.PRODUCTS, products); renderAll(); }
+    });
+
+    // doubleclick product edit shortcut
+    document.body.addEventListener('dblclick', (e)=>{ const card = e.target.closest('.product'); if(!card) return; const btn = card.querySelector('[data-action="edit"]'); btn && btn.click(); });
+
+    /* ---------- Helpers & bootstrap ---------- */
+    function renderAll(){ renderProducts($('#search').value||''); renderCart(); renderInventoryManager(); renderOrders(); }
+    renderAll();
+
+  </script>
+</body>
+</html>
+
