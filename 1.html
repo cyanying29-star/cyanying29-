@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>退而不休 — 軍公教退休補強 App 概念</title>
+  <meta name="description" content="針對軍、公、教退休收入不足的解方，包含試算器、理財教練、媒合與社群。" />
+  <style>
+    :root{--accent:#0b63ff;--accent-2:#0ea5a4;--muted:#6b7280;--bg:#f6f8fb;--card:#fff;--radius:12px;font-family:'Noto Sans TC',system-ui,-apple-system,'Segoe UI',Roboto,Arial}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#ffffff);color:#0f1724}
+    .wrap{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#6ea8ff);display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:6px 0 0;color:var(--muted)}
+
+    nav a{color:var(--muted);text-decoration:none;margin-left:14px}
+    .hero{display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start;margin-top:18px}
+    .card{background:var(--card);padding:18px;border-radius:var(--radius);box-shadow:0 8px 24px rgba(12,20,40,0.06)}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+    .feature{padding:12px;border-radius:10px;background:#fbfdff}
+    h2{margin:0 0 8px;font-size:18px}
+    h3{margin:8px 0}
+    ul{padding-left:18px;color:var(--muted)}
+    .cta{margin-top:12px}
+    button{background:var(--accent);color:white;border:0;padding:10px 12px;border-radius:10px;cursor:pointer}
+    .outline{background:transparent;border:1px solid #e6eefc;color:var(--accent)}
+
+    /* mockup column */
+    .phone-mock{width:100%;max-width:320px;margin:0 auto}
+    .phone{width:260px;height:520px;border-radius:28px;background:linear-gradient(180deg,#fff,#f7fbff);box-shadow:0 12px 30px rgba(12,20,40,0.08);padding:18px;position:relative}
+    .screen{background:#f9fbff;height:100%;border-radius:14px;padding:12px;overflow:auto}
+    .pill{display:inline-block;background:#eef6ff;padding:6px 10px;border-radius:999px;color:var(--accent);font-weight:700}
+
+    /* calc form */
+    form label{display:block;font-weight:700;margin-top:8px;font-size:13px}
+    input,select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc;margin-top:6px}
+    .result{margin-top:10px;padding:10px;background:#fbfdff;border-radius:10px}
+
+    /* roadmap */
+    .roadmap{display:flex;flex-direction:column;gap:10px}
+    .roadmap .step{display:flex;gap:10px;align-items:flex-start}
+    .dot{width:12px;height:12px;border-radius:50%;background:var(--accent);margin-top:6px}
+
+    footer{margin-top:26px;text-align:center;color:var(--muted);font-size:13px}
+    @media(max-width:980px){.hero{grid-template-columns:1fr}.feature-grid{grid-template-columns:repeat(1,1fr)}.phone{max-width:100%;height:420px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">薪</div>
+        <div>
+          <h1>退而不休</h1>
+          <div class="lead">針對軍、公、教退休收入不足的解決型 App 概念</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#features">功能</a>
+        <a href="#calculator">試算器</a>
+        <a href="#roadmap">路線圖</a>
+      </nav>
+    </header>
+
+    <div class="hero">
+      <div>
+        <div class="card">
+          <h2>產品定位</h2>
+          <p class="muted">結合「退休缺口試算」、「理財教育」、「兼職媒合」與「B2G 協作」的整合型服務，目的在於：</p>
+          <ul>
+            <li>讓使用者快速看懂退休缺口並獲得可行改善策略</li>
+            <li>提供可落地的補強方案（短期補貼、中期職涯、長期投資）</li>
+            <li>建立社群支持，減少心理/社會成本</li>
+          </ul>
+
+          <div class="feature-grid" id="features">
+            <div class="feature">
+              <strong>試算器</strong>
+              <div class="muted">個人化退休缺口估算與行動建議</div>
+            </div>
+            <div class="feature">
+              <strong>AI 理財教練</strong>
+              <div class="muted">根據風險偏好給出配置建議</div>
+            </div>
+            <div class="feature">
+              <strong>任務媒合</strong>
+              <div class="muted">兼職、講座、社區服務的媒合平台</div>
+            </div>
+            <div class="feature">
+              <strong>自助申請</strong>
+              <div class="muted">線上補貼/福利申請與表單範本</div>
+            </div>
+            <div class="feature">
+              <strong>數據儀表板</strong>
+              <div class="muted">匿名化需求熱區給政府/機構</div>
+            </div>
+            <div class="feature">
+              <strong>社群與心理支持</strong>
+              <div class="muted">互助論壇與專家諮詢</div>
+            </div>
+          </div>
+
+          <div class="cta">
+            <button onclick="document.getElementById('calculator').scrollIntoView({behavior:'smooth'})">試算你的缺口</button>
+            <button class="outline" onclick="alert('示範：聯絡我們')">聯絡合作</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <h2>商業模式與合作</h2>
+          <ul>
+            <li>B2G：白標服務、資料報表與需求分析</li>
+            <li>B2B：對保險、銀行推薦進階理財與保險方案抽成</li>
+            <li>B2C：會員制進階功能（AI 教練、專家諮詢）</li>
+            <li>CSR / 贊助：企業贊助就業媒合專案</li>
+          </ul>
+        </div>
+      </div>
+
+      <aside class="phone-mock">
+        <div class="phone card">
+          <div class="screen">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="pill">退而不休</div>
+              <div style="font-size:12px;color:var(--muted)">範例畫面</div>
+            </div>
+
+            <div style="margin-top:12px">
+              <h3 style="margin:0">首頁</h3>
+              <p class="muted" style="margin:6px 0">試算、任務、課程、社群一目了然</p>
+            </div>
+
+            <div style="margin-top:12px">
+              <div style="background:#fff;padding:8px;border-radius:10px;box-shadow:0 6px 18px rgba(12,20,40,0.04)">
+                <div style="font-weight:700">本月提示：NT$ 8,200 月缺口</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:6px">建議：每月儲蓄 NT$ 5,400 或接案 8 小時</div>
+              </div>
+            </div>
+
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <div style="flex:1;background:#fff;padding:8px;border-radius:8px;text-align:center">任務
+                <div style="font-size:12px;color:var(--muted)">會員 4 件</div></div>
+              <div style="flex:1;background:#fff;padding:8px;border-radius:8px;text-align:center">課程
+                <div style="font-size:12px;color:var(--muted)">3 個</div></div>
+            </div>
+
+            <div style="margin-top:12px;font-size:13px;color:var(--muted)">社群熱門：退休理財分享</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- calculator -->
+    <section id="calculator" style="margin-top:18px">
+      <div class="card">
+        <h2>退休缺口試算器（示範）</h2>
+        <p class="muted">依據你的輸入，會估算退休 20 年所需總額、現有儲蓄未來價值、每月需額外儲蓄與預估每月缺口。</p>
+
+        <form id="calcForm" onsubmit="event.preventDefault(); runCalc()">
+          <label for="age">目前年齡</label>
+          <input id="age" type="number" min="18" max="80" value="45" required />
+          <label for="retireAge">預期退休年齡</label>
+          <input id="retireAge" type="number" min="50" max="75" value="60" required />
+          <label for="currentIncome">目前月收入（或退休金預估）</label>
+          <input id="currentIncome" type="number" min="0" value="60000" required />
+          <label for="expectedExpense">預期退休後每月支出</label>
+          <input id="expectedExpense" type="number" min="0" value="50000" required />
+          <label for="existingSavings">目前可動用儲蓄（含退休金準備）</label>
+          <input id="existingSavings" type="number" min="0" value="0" />
+          <label for="realReturn">年平均實質投資報酬率（%）</label>
+          <input id="realReturn" type="number" min="0" step="0.1" value="2" />
+
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <button type="submit">開始估算</button>
+            <button type="button" class="outline" onclick="resetForm()">重設</button>
+          </div>
+        </form>
+
+        <div id="result" class="result"></div>
+      </div>
+    </section>
+
+    <!-- roadmap -->
+    <section id="roadmap" style="margin-top:18px">
+      <div class="card">
+        <h2>產品路線圖（建議）</h2>
+        <div class="roadmap">
+          <div class="step"><div class="dot"></div><div><strong>0-2 個月</strong><div class="muted">MVP：試算器 + 資訊整合頁面 + 基本註冊</div></div></div>
+          <div class="step"><div class="dot" style="background:var(--accent-2)"></div><div><strong>2-6 個月</strong><div class="muted">自助申請模組、任務媒合、基礎社群</div></div></div>
+          <div class="step"><div class="dot"></div><div><strong>6-12 個月</strong><div class="muted">AI 理財教練、B2G 數據儀表板、合作機關整合</div></div></div>
+          <div class="step"><div class="dot" style="background:var(--accent-2)"></div><div><strong>12 個月+</strong><div class="muted">商業化產品（付費會員、白標、API 收費）</div></div></div>
+        </div>
+
+        <h3 style="margin-top:12px">技術建議與堆疊</h3>
+        <ul>
+          <li><strong>前端：</strong>React Native（跨平台）或 Flutter</li>
+          <li><strong>後端：</strong>Firebase / Supabase（認證、資料、通知）</li>
+          <li><strong>AI：</strong>OpenAI / LLM 做智能問答與理財教練</li>
+          <li><strong>資料：</strong>串接政府 Open Data 與機關 API</li>
+        </ul>
+      </div>
+    </section>
+
+    <div style="margin-top:18px" class="card">
+      <h2>下一步（我能幫你做的）</h2>
+      <ul>
+        <li>把這份 HTML 轉成可互動的 prototype（Figma / React）</li>
+        <li>把試算器升級為考量年金給付公式的精準版本（需要法規或給付公式）</li>
+        <li>產出 1 pager 投資簡報或投資人提案（PPT / PDF）</li>
+      </ul>
+      <div style="margin-top:10px"><button onclick="alert('示範：我可以把這頁存為檔案或進一步產出 PPT')">我要下一步</button></div>
+    </div>
+
+    <footer>
+      © 2025 退而不休 · 本頁為 App 概念原型，計算僅供示範，實際退休與年金計算請以法規與專業精算為準。
+    </footer>
+  </div>
+
+  <script>
+    function numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    function runCalc(){
+      const age = Number(document.getElementById('age').value);
+      const retireAge = Number(document.getElementById('retireAge').value);
+      const currentIncome = Number(document.getElementById('currentIncome').value);
+      const expectedExpense = Number(document.getElementById('expectedExpense').value);
+      const existingSavings = Number(document.getElementById('existingSavings').value);
+      const realReturn = Number(document.getElementById('realReturn').value)/100;
+
+      const yearsToRetire = Math.max(0, retireAge - age);
+      const horizonYears = 20;
+      const neededTotal = expectedExpense * 12 * horizonYears;
+      const futureSavings = existingSavings * Math.pow(1 + realReturn, yearsToRetire);
+      const capitalShort = Math.max(0, neededTotal - futureSavings);
+      let annualNeeded = 0;
+      if (yearsToRetire === 0) {
+        annualNeeded = capitalShort;
+      } else {
+        const r = realReturn;
+        if (r === 0) {
+          annualNeeded = capitalShort / yearsToRetire;
+        } else {
+          const factor = (Math.pow(1 + r, yearsToRetire) - 1) / r;
+          annualNeeded = capitalShort / factor;
+        }
+      }
+      const monthlyNeeded = annualNeeded / 12;
+      const monthlyGap = Math.max(0, expectedExpense - currentIncome);
+
+      const result = document.getElementById('result');
+      result.innerHTML = `
+        <div style="font-weight:700">估算結果（示範）</div>
+        <div class="muted" style="margin-top:6px">距離退休：<strong>${yearsToRetire}</strong> 年</div>
+        <div style="margin-top:8px">目標退休總額（${horizonYears} 年）： <strong>NT$ ${numberWithCommas(Math.round(neededTotal))}</strong></div>
+        <div style="margin-top:6px">現有儲蓄未來價值： <strong>NT$ ${numberWithCommas(Math.round(futureSavings))}</strong></div>
+        <div style="margin-top:6px">估計尚需資本： <strong>NT$ ${numberWithCommas(Math.round(capitalShort))}</strong></div>
+        <div style="margin-top:6px">每月需額外儲蓄（以目前假設）： <strong>NT$ ${numberWithCommas(Math.round(monthlyNeeded))}</strong></div>
+        <div style="margin-top:6px">當前預估月缺口（支出 - 預估退休金）： <strong>NT$ ${numberWithCommas(Math.round(monthlyGap))}</strong></div>
+      `;
+    }
+    function resetForm(){
+      document.getElementById('calcForm').reset();
+      runCalc();
+    }
+    document.addEventListener('DOMContentLoaded', runCalc);
+  </script>
+</body>
+</html>
